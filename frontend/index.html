@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CertiChain</title>
+<meta name="description" content="Certificates that prove themselves. Issue, share and verify credentials on a blockchain, with privacy built in.">
+<style>
+:root{
+  --bg:#fbfbfd;--bg2:#f5f5f7;--panel:#fff;--ink:#1d1d1f;--mut:#6e6e73;--line:rgba(0,0,0,.1);--line2:rgba(0,0,0,.06);
+  --acc:#0071e3;--acc-h:#0077ed;--on:#fff;--ok:#1f8f4d;--okbg:rgba(48,209,88,.12);--bad:#d70015;--badbg:rgba(255,59,48,.1);--warn:#b25000;--warnbg:rgba(255,149,0,.12);
+  --nav:rgba(251,251,253,.72);--shadow:0 2px 12px rgba(0,0,0,.05),0 12px 40px rgba(0,0,0,.06);--cube:#0071e3;--cube2:#8e8e93;--grad:linear-gradient(90deg,#0071e3,#7a5cff 55%,#ff5fa2);
+}
+:root[data-theme=dark]{
+  --bg:#000;--bg2:#101012;--panel:#1c1c1e;--ink:#f5f5f7;--mut:#a1a1a6;--line:rgba(255,255,255,.16);--line2:rgba(255,255,255,.08);
+  --acc:#2997ff;--acc-h:#47a6ff;--on:#fff;--ok:#30d158;--okbg:rgba(48,209,88,.16);--bad:#ff453a;--badbg:rgba(255,69,58,.16);--warn:#ff9f0a;--warnbg:rgba(255,159,10,.16);
+  --nav:rgba(0,0,0,.66);--shadow:0 2px 12px rgba(0,0,0,.4),0 12px 40px rgba(0,0,0,.4);--cube:#2997ff;--cube2:#8e8e93;
+}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html{scroll-behavior:smooth;scroll-padding-top:64px;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.47 -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;letter-spacing:-.011em}
+a{color:var(--acc);text-decoration:none}a:hover{text-decoration:underline}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:0}
+:focus-visible{outline:3px solid color-mix(in srgb,var(--acc) 55%,transparent);outline-offset:2px;border-radius:8px}
+
+/* nav */
+nav.top{position:sticky;top:0;z-index:50;height:52px;background:var(--nav);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line2)}
+nav.top .in{max-width:1024px;margin:0 auto;height:100%;padding:0 20px;display:flex;align-items:center;gap:28px}
+.logo{font-weight:600;font-size:17px;color:var(--ink);display:flex;align-items:center;gap:8px;letter-spacing:-.02em}.logo:hover{text-decoration:none}
+.logo i{width:18px;height:18px;border-radius:5px;background:var(--grad);display:inline-block}
+.links{display:flex;gap:26px;margin-left:auto;font-size:13px}
+.links a{color:var(--ink);opacity:.8}.links a:hover{opacity:1;text-decoration:none}
+.iconbtn{background:none;border:0;color:var(--ink);cursor:pointer;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;opacity:.8}.iconbtn:hover{opacity:1;background:var(--line2)}
+@media(max-width:640px){.links a:not(.cta-s){display:none}.links{gap:12px}}
+.cta-s{background:var(--acc);color:var(--on)!important;opacity:1!important;padding:4px 12px;border-radius:980px;font-weight:500}
+
+/* layout */
+section.blk{padding:96px 20px}
+.c{max-width:1024px;margin:0 auto}
+.eyebrow{font-size:14px;font-weight:600;color:var(--acc);letter-spacing:0;margin:0 0 8px}
+h2.big{font-size:clamp(32px,5.4vw,56px);line-height:1.07;font-weight:700;letter-spacing:-.03em;margin:0 0 14px}
+.lead{font-size:clamp(18px,2.2vw,24px);line-height:1.35;color:var(--mut);margin:0;max-width:34em;letter-spacing:-.015em}
+.center{text-align:center}.center .lead{margin-inline:auto}
+.grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:980px;padding:11px 22px;font-size:17px;font-weight:500;line-height:1.2;cursor:pointer;transition:transform .15s,background .2s,opacity .2s;font-family:inherit;color:var(--on);background:var(--acc)}
+.btn:hover{background:var(--acc-h);text-decoration:none}.btn:active{transform:scale(.97)}
+.btn.sec{background:var(--bg2);color:var(--acc)}.btn.sec:hover{background:var(--line2)}
+.btn.ghost{background:none;color:var(--acc);padding-inline:8px}.btn.ghost:hover{text-decoration:underline;background:none}
+.btn.danger{background:var(--badbg);color:var(--bad)}
+.btn.sm{font-size:14px;padding:7px 15px}
+.btn:disabled{opacity:.45;cursor:default;transform:none}
+
+/* hero */
+.hero{padding:72px 20px 0;text-align:center;overflow:hidden}
+.hero h1{font-size:clamp(44px,9vw,92px);line-height:1.02;font-weight:700;letter-spacing:-.045em;margin:0 0 18px}
+.hero .lead{margin:0 auto 28px;max-width:30em}
+.hero .acts{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+#stage{position:relative;height:min(62vh,520px);min-height:340px;margin-top:20px}
+canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:pan-y}canvas:active{cursor:grabbing}
+.hud{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);font-size:12px;color:var(--mut);background:var(--nav);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line2);padding:6px 14px;border-radius:980px;white-space:nowrap;max-width:94%;overflow:hidden;text-overflow:ellipsis}
+.live{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-right:8px;box-shadow:0 0 0 0 var(--ok);animation:pulse 2s infinite}
+.live.off{background:var(--bad);animation:none}
+@keyframes pulse{70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
+
+/* stats */
+.stats{background:var(--bg2);padding:44px 20px}
+.stats .c{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:center}
+.stat b{display:block;font-size:clamp(32px,5vw,52px);font-weight:700;letter-spacing:-.035em;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:14px;color:var(--mut)}
+@media(max-width:640px){.stats .c{grid-template-columns:repeat(2,1fr);row-gap:28px}}
+
+/* bento */
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-top:48px}
+.tile{background:var(--bg2);border-radius:28px;padding:32px;position:relative;overflow:hidden;min-height:240px;display:flex;flex-direction:column;transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+.tile:hover{transform:translateY(-3px)}
+.tile h3{font-size:clamp(22px,2.6vw,28px);line-height:1.12;font-weight:700;letter-spacing:-.025em;margin:0 0 8px}
+.tile p{margin:0;color:var(--mut);font-size:17px;line-height:1.4;max-width:26em}
+.tile .ico{font-size:30px;margin-bottom:auto;padding-bottom:20px}
+.t2{grid-column:span 2}.t3{grid-column:span 3}.t4{grid-column:span 4}
+.tile.dark{background:#000;color:#f5f5f7}.tile.dark p{color:#a1a1a6}
+.tile.blue{background:linear-gradient(135deg,#0a84ff,#5e5ce6);color:#fff}.tile.blue p{color:rgba(255,255,255,.82)}
+@media(max-width:820px){.bento{grid-template-columns:1fr 1fr}.t2,.t3,.t4{grid-column:span 2}}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.pill{font-size:13px;font-weight:500;padding:5px 12px;border-radius:980px;background:rgba(255,255,255,.14);display:inline-flex;gap:6px;align-items:center}
+.tile .pill.k{background:var(--line2)}
+.tile.dark .pill.k{background:rgba(255,255,255,.12)}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:56px;counter-reset:s}
+.step{counter-increment:s}
+.step:before{content:counter(s);display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--ink);color:var(--bg);font-weight:700;margin-bottom:18px}
+.step h3{font-size:22px;margin:0 0 6px;letter-spacing:-.02em}.step p{margin:0;color:var(--mut)}
+@media(max-width:760px){.steps{grid-template-columns:1fr;gap:28px}}
+
+/* app */
+#app{background:var(--bg2)}
+.seg{display:inline-flex;background:var(--line2);padding:3px;border-radius:980px;margin:28px 0 24px;gap:2px;max-width:100%;overflow-x:auto}
+.seg button{border:0;background:none;color:var(--ink);font-size:14px;font-weight:500;font-family:inherit;padding:8px 18px;border-radius:980px;cursor:pointer;white-space:nowrap;transition:background .2s,box-shadow .2s}
+.seg button.on{background:var(--panel);box-shadow:0 1px 4px rgba(0,0,0,.14)}
+.seg .n{display:inline-block;min-width:18px;padding:0 5px;margin-left:6px;font-size:11px;line-height:18px;border-radius:9px;background:var(--acc);color:var(--on)}
+.card{background:var(--panel);border-radius:24px;padding:28px;box-shadow:var(--shadow);margin-bottom:16px}
+.card h3{margin:0 0 4px;font-size:22px;letter-spacing:-.02em}
+.card .sub{color:var(--mut);font-size:15px;margin:0 0 20px}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+label.l{display:block;font-size:13px;font-weight:500;color:var(--mut);margin-bottom:6px}
+input.i,textarea.i,select.i{width:100%;background:var(--bg2);color:var(--ink);border:1px solid transparent;border-radius:12px;padding:13px 14px;font:inherit;font-size:16px;transition:border .2s,background .2s}
+input.i:focus,textarea.i:focus{outline:0;border-color:var(--acc);background:var(--panel)}
+textarea.i{font:13px/1.5 ui-monospace,"SF Mono",Menlo,monospace;resize:vertical}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:20px}
+.h{font-size:13px;color:var(--mut);word-break:break-all}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-top:1px solid var(--line2);cursor:pointer}
+.sw:first-child{border-top:0}
+.sw b{text-transform:capitalize;font-weight:600}.sw span.v{color:var(--mut);display:block;font-size:15px}
+.sw input{appearance:none;-webkit-appearance:none;width:51px;height:31px;border-radius:16px;background:var(--line);position:relative;cursor:pointer;flex:none;transition:background .25s;margin:0}
+.sw input:before{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.25);transition:transform .25s}
+.sw input:checked{background:#34c759}.sw input:checked:before{transform:translateX(20px)}
+.drop{border:2px dashed var(--line);border-radius:20px;padding:26px;text-align:center;color:var(--mut);transition:.2s;cursor:pointer;font-size:15px}
+.drop.over{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 8%,transparent);color:var(--acc)}
+.err{color:var(--bad);font-size:14px}
+.tbl-wrap{overflow-x:auto;margin:0 -8px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{font-size:12px;font-weight:600;color:var(--mut);text-align:left;padding:8px;text-transform:uppercase;letter-spacing:.04em}
+td{padding:12px 8px;border-top:1px solid var(--line2);vertical-align:middle}
+tr.click{cursor:pointer}tr.click:hover td{background:var(--bg2)}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:980px}
+.badge.valid{background:var(--okbg);color:var(--ok)}.badge.revoked{background:var(--badbg);color:var(--bad)}.badge.altered,.badge.notfound{background:var(--warnbg);color:var(--warn)}.badge.checking{background:var(--line2);color:var(--mut)}
+.empty{text-align:center;color:var(--mut);padding:36px 12px}
+
+/* verify result */
+.result{display:flex;gap:20px;align-items:flex-start}
+.seal{flex:none;width:68px;height:68px;border-radius:50%;display:grid;place-items:center;font-size:34px;animation:pop .5s cubic-bezier(.2,1.4,.4,1)}
+.seal.valid{background:var(--okbg);color:var(--ok)}.seal.revoked{background:var(--badbg);color:var(--bad)}.seal.altered,.seal.notfound{background:var(--warnbg);color:var(--warn)}
+@keyframes pop{from{transform:scale(.4);opacity:0}}
+.result h3{font-size:30px;letter-spacing:-.03em;margin:2px 0 4px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:8px 20px;margin-top:18px;font-size:15px}
+.kv dt{color:var(--mut);text-transform:capitalize}.kv dd{margin:0;font-weight:500;word-break:break-word}
+.priv{color:var(--mut);letter-spacing:.15em}
+
+/* modal + certificate */
+.modal{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.45);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);overflow:auto;padding:40px 16px;animation:fade .25s}
+@keyframes fade{from{opacity:0}}
+.sheetwrap{max-width:960px;margin:0 auto;background:var(--panel);border-radius:28px;padding:28px;box-shadow:0 30px 80px rgba(0,0,0,.35);animation:rise .4s cubic-bezier(.2,.9,.3,1)}
+@keyframes rise{from{transform:translateY(24px) scale(.98);opacity:0}}
+.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.mh h3{margin:0;font-size:22px;letter-spacing:-.02em}
+.mgrid{display:grid;grid-template-columns:1.25fr 1fr;gap:28px}
+@media(max-width:820px){.mgrid{grid-template-columns:1fr}}
+.sheet{background:#fff;color:#1d1d1f;border-radius:18px;padding:40px 36px;border:1px solid rgba(0,0,0,.08);position:relative;overflow:hidden;aspect-ratio:1.414/1;min-height:360px;display:flex;flex-direction:column}
+.sheet:before{content:"";position:absolute;inset:10px;border:1px solid rgba(0,0,0,.1);border-radius:12px;pointer-events:none}
+.sheet:after{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#0071e3,#7a5cff 55%,#ff5fa2)}
+.sheet .kick{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#6e6e73;font-weight:600}
+.sheet .who{font-size:clamp(26px,4.2vw,40px);font-weight:700;letter-spacing:-.03em;margin:14px 0 4px;line-height:1.1}
+.sheet .what{color:#6e6e73;font-size:14px}.sheet .crs{font-size:clamp(17px,2.4vw,22px);font-weight:600;margin:4px 0 0;letter-spacing:-.02em}
+.sheet .meta{margin-top:auto;display:flex;gap:18px;align-items:flex-end;justify-content:space-between}
+.sheet .meta div.t{font-size:12px;color:#6e6e73;line-height:1.5;min-width:0}.sheet .meta b{color:#1d1d1f}
+.sheet .qr{width:96px;height:96px;flex:none}.sheet .qr svg{width:100%;height:100%;display:block}
+@media print{
+  @page{size:A4 landscape;margin:12mm}
+  body *{visibility:hidden}
+  .sheet,.sheet *{visibility:visible}
+  .modal{position:static;background:none;padding:0;backdrop-filter:none}
+  .sheetwrap{box-shadow:none;padding:0;background:none}
+  .sheet{position:fixed;inset:0;aspect-ratio:auto;border:0;padding:60px}
+}
+
+/* toast */
+#toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,120px);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:980px;font-size:15px;font-weight:500;z-index:200;transition:transform .4s cubic-bezier(.2,.9,.3,1);max-width:92vw;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+#toast.on{transform:translate(-50%,0)}
+
+footer{padding:40px 20px 60px;color:var(--mut);font-size:13px;border-top:1px solid var(--line2);background:var(--bg2)}
+footer .c{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(28px);transition:opacity .9s cubic-bezier(.2,.8,.2,1),transform .9s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}html{scroll-behavior:auto}}
+.spin{width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;display:inline-block;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style></head>
+<body>
+
+<nav class="top"><div class="in">
+  <a class="logo" href="#top"><i></i>CertiChain</a>
+  <div class="links">
+    <a href="#features">Features</a><a href="#how">How it works</a><a href="#explorer">Explorer</a><a class="cta-s" href="#app">Get started</a>
+  </div>
+  <button class="iconbtn" id="theme" aria-label="Toggle dark mode" title="Toggle dark mode">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
+</div></nav>
+
+<header class="hero" id="top">
+  <div class="c">
+    <h1 class="rv">Certificates.<br><span class="grad">Proven.</span></h1>
+    <p class="lead rv">Issue credentials that can't be forged, share only what you choose, and let anyone verify them in a second. Powered by blockchain.</p>
+    <div class="acts rv"><a class="btn" href="#app" data-go="issue">Issue a certificate</a><a class="btn sec" href="#app" data-go="verify">Verify one</a></div>
+  </div>
+  <div id="stage" class="c"><div class="hud mono" id="hud"><span class="live off"></span>Connecting to the chain...</div></div>
+</header>
+
+<div class="stats"><div class="c">
+  <div class="stat"><b data-s="total">0</b><span>Certificates issued</span></div>
+  <div class="stat"><b data-s="block">0</b><span>Latest block</span></div>
+  <div class="stat"><b data-s="issuers">0</b><span>Active issuers</span></div>
+  <div class="stat"><b data-s="revoked">0</b><span>Revoked</span></div>
+</div></div>
+
+<section class="blk" id="features"><div class="c">
+  <div class="center rv"><p class="eyebrow">Features</p><h2 class="big">Everything a credential needs.<br>Nothing it doesn't.</h2><p class="lead">Built for institutions that issue, and for people who carry their achievements everywhere.</p></div>
+  <div class="bento">
+    <div class="tile t4 dark rv"><div class="ico">🔒</div><h3>Privacy by design.</h3><p>Only a salted fingerprint ever touches the blockchain. Choose exactly which details to reveal, and the verifier can still prove the rest is genuine.</p><div class="pills"><span class="pill">Salted hashes</span><span class="pill">Selective disclosure</span><span class="pill">No personal data on-chain</span></div></div>
+    <div class="tile t2 rv"><div class="ico">⛓️</div><h3>Tamper-proof.</h3><p>Change one character and verification fails instantly.</p></div>
+    <div class="tile t2 rv"><div class="ico">▦</div><h3>QR in a scan.</h3><p>Every certificate carries a QR code that opens straight to its proof.</p></div>
+    <div class="tile t2 rv"><div class="ico">🖨️</div><h3>Print or PDF.</h3><p>A beautifully designed certificate, ready to print or save.</p></div>
+    <div class="tile t2 rv"><div class="ico">📦</div><h3>Batch issue.</h3><p>Upload a CSV and issue up to 50 certificates in one go.</p></div>
+    <div class="tile t3 blue rv"><div class="ico">🛑</div><h3>Revoke any time.</h3><p>Made a mistake? Revoke with your private key. Every verifier sees it immediately.</p></div>
+    <div class="tile t3 rv"><div class="ico">🔎</div><h3>Public ledger explorer.</h3><p>Search every record by fingerprint, filter by status and inspect the proof on chain.</p></div>
+  </div>
+</div></section>
+
+<section class="blk" id="how" style="background:var(--bg2)"><div class="c">
+  <div class="rv"><p class="eyebrow">How it works</p><h2 class="big">Three steps.<br>Zero trust required.</h2></div>
+  <div class="steps">
+    <div class="step rv"><h3>Issue</h3><p>Each field is salted and hashed, then combined into one fingerprint. Only that fingerprint is written to the blockchain.</p></div>
+    <div class="step rv"><h3>Share</h3><p>The holder picks which fields to reveal and shares a link, a QR code or a file.</p></div>
+    <div class="step rv"><h3>Verify</h3><p>Anyone recomputes the fingerprint and checks it against the contract. Genuine, revoked or altered, in a second.</p></div>
+  </div>
+</div></section>
+
+<section class="blk" id="app"><div class="c">
+  <div class="rv"><p class="eyebrow">Try it now</p><h2 class="big">Your turn.</h2><p class="lead">Issue a certificate, verify it, and manage everything you've created.</p></div>
+  <div class="seg rv" role="tablist" id="seg">
+    <button class="on" data-t="issue" role="tab">Issue</button><button data-t="batch" role="tab">Batch</button><button data-t="verify" role="tab">Verify</button><button data-t="wallet" role="tab">My certificates<span class="n" id="wn" hidden>0</span></button>
+  </div>
+
+  <div id="p-issue">
+    <div class="card"><h3>New certificate</h3><p class="sub">Fill in the details. Nothing but a fingerprint is stored on the blockchain.</p>
+      <div class="g">
+        <div><label class="l" for="name">Student name</label><input class="i" id="name" placeholder="Aarav Kumar" autocomplete="off"></div>
+        <div><label class="l" for="course">Course</label><input class="i" id="course" placeholder="Blockchain Fundamentals" autocomplete="off"></div>
+        <div><label class="l" for="grade">Grade</label><input class="i" id="grade" placeholder="A+ (92%)" autocomplete="off"></div>
+        <div><label class="l" for="issuer">Issuing institution</label><input class="i" id="issuer" placeholder="Example University" autocomplete="off"></div>
+        <div><label class="l" for="date">Completion date (optional)</label><input class="i" id="date" type="date"></div>
+      </div>
+      <div class="row"><button class="btn" id="go">Issue certificate</button><button class="btn ghost" id="sample" type="button">Fill sample</button><span id="st" class="h"></span></div>
+    </div>
+  </div>
+
+  <div id="p-batch" hidden>
+    <div class="card"><h3>Batch issue</h3><p class="sub">Paste or upload a CSV with the columns <span class="mono">name, course, grade, issuer, date</span> (date is optional). Up to 50 rows.</p>
+      <div class="drop" id="csvdrop">Drop a CSV file here, or click to choose<input type="file" id="csvfile" accept=".csv,text/csv" hidden></div>
+      <label class="l" for="csv" style="margin-top:16px">CSV data</label>
+      <textarea class="i" id="csv" rows="6" placeholder="name,course,grade,issuer,date&#10;Aarav Kumar,Blockchain Fundamentals,A+,Example University,2026-06-30"></textarea>
+      <div class="row"><button class="btn" id="bgo">Issue batch</button><button class="btn sec" id="btpl">Download template</button><span id="bst" class="h"></span></div>
+    </div>
+    <div class="card" id="bres" hidden></div>
+  </div>
+
+  <div id="p-verify" hidden>
+    <div class="card"><h3>Verify a certificate</h3><p class="sub">Paste a share package, drop the file, or open a verification link.</p>
+      <div class="drop" id="vdrop">Drop a share package (.json) here, or click to choose<input type="file" id="vfile" accept=".json,application/json" hidden></div>
+      <label class="l" for="vin" style="margin-top:16px">Share package</label>
+      <textarea class="i" id="vin" rows="5" placeholder="Paste a share package. Edit any value to see verification fail."></textarea>
+      <div class="row"><button class="btn" id="vgo">Verify certificate</button><button class="btn ghost" id="vclr">Clear</button></div>
+    </div>
+    <div id="vout"></div>
+    <div class="card"><h3>Check by fingerprint</h3><p class="sub">Only have the fingerprint? See whether it is on the blockchain and whether it has been revoked.</p>
+      <div class="row" style="margin-top:0"><input class="i mono" id="fp" placeholder="64-character fingerprint" style="flex:1;min-width:220px"><button class="btn sec" id="fgo">Check</button></div>
+      <div id="fout" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+  <div id="p-wallet" hidden>
+    <div class="card"><div class="mh" style="margin:0 0 6px"><h3>My certificates</h3><button class="btn sec sm" id="wref">Refresh status</button></div>
+      <p class="sub">Certificates you issued in this browser, with their live status. Your revoke keys are stored here, so keep this browser's data safe.</p>
+      <div id="wlist"></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="blk" id="explorer" style="background:var(--bg2)"><div class="c">
+  <div class="rv"><p class="eyebrow">Explorer</p><h2 class="big">The public ledger.</h2><p class="lead">Every certificate fingerprint ever recorded. No names, no grades, just proof.</p></div>
+  <div class="card rv" style="margin-top:40px">
+    <div class="row" style="margin:0 0 14px"><input class="i" id="q" placeholder="Search by fingerprint or issuer address" style="flex:1;min-width:220px">
+      <div class="seg" id="flt" style="margin:0"><button class="on" data-f="all">All</button><button data-f="valid">Valid</button><button data-f="revoked">Revoked</button></div></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Fingerprint</th><th>Issuer</th><th>Block</th><th>Issued</th><th>Status</th></tr></thead><tbody id="ex"></tbody></table></div>
+    <div id="exm" class="row" style="justify-content:center" hidden><button class="btn sec sm" id="more">Show more</button></div>
+  </div>
+</div></section>
+
+<footer><div class="c"><span>CertiChain. Certificates that prove themselves.</span><span class="mono" id="foot"></span></div></footer>
+
+<div class="modal" id="modal" hidden><div class="sheetwrap" id="mbody"></div></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const short=(r,a=8,b=6)=>r.slice(0,a)+'…'+r.slice(-b);
+const fmt=t=>new Date(t*1000).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'});
+const api=async(p,b)=>{const r=await fetch('/api/'+p,b&&{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});const j=await r.json().catch(()=>({error:'Server error'}));if(!r.ok)throw new Error(j.error);return j};
+const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2600)}
+const copy=async(t,m='Copied')=>{try{await navigator.clipboard.writeText(t)}catch{const a=document.createElement('textarea');a.value=t;document.body.append(a);a.select();document.execCommand('copy');a.remove()}toast(m)};
+const download=(name,text,type='application/json')=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+const b64e=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const b64d=s=>decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/'))));
+
+/* theme */
+function setTheme(t){document.documentElement.dataset.theme=t;store.set('theme',t);cubes(lastN)}
+(function(){const t=store.get('theme',matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.dataset.theme=t})();
+$('#theme').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
+
+/* scroll reveal */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+$$('.rv').forEach((e,i)=>{e.style.transitionDelay=(i%4)*70+'ms';io.observe(e)});
+
+/* tabs */
+function tab(t){['issue','batch','verify','wallet'].forEach(x=>$('#p-'+x).hidden=x!==t);$$('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));if(t==='wallet')renderWallet(true)}
+$$('#seg button').forEach(b=>b.onclick=()=>tab(b.dataset.t));
+$$('[data-go]').forEach(a=>a.addEventListener('click',()=>tab(a.dataset.go)));
+
+/* live chain info */
+let info={total:0,block:0,issuers:0,revoked:0},lastN=0;
+const shown={};
+function countTo(el,v){const k=el.dataset.s,from=shown[k]||0;shown[k]=v;if(matchMedia('(prefers-reduced-motion:reduce)').matches||from===v){el.textContent=v.toLocaleString();return}
+  const t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/900),e=1-Math.pow(1-p,3);el.textContent=Math.round(from+(v-from)*e).toLocaleString();if(p<1)requestAnimationFrame(f)})(t0)}
+async function refreshInfo(){
+  try{const d=await api('info');info=d;
+    $('#hud').innerHTML=`<span class="live"></span>${esc(d.network)} · block ${d.block} · ${d.total} certificates · ${esc(d.address.slice(0,10))}…`;
+    $('#foot').textContent='Contract '+d.address;
+    $$('[data-s]').forEach(el=>countTo(el,d[el.dataset.s]));cubes(d.total+1);return d
+  }catch(e){$('#hud').innerHTML='<span class="live off"></span>Cannot reach the chain: '+esc(e.message)}}
+
+/* issue */
+const F=['name','course','grade','issuer'];
+$('#sample').onclick=()=>{const s={name:'Aarav Kumar',course:'Blockchain Fundamentals',grade:'A+ (92%)',issuer:'Example University',date:new Date().toISOString().slice(0,10)};for(const k in s)$('#'+k).value=s[k]};
+$('#go').onclick=async()=>{
+  const b=Object.fromEntries([...F,'date'].map(k=>[k,$('#'+k).value.trim()]));
+  const miss=F.find(k=>!b[k]);if(miss){$('#st').innerHTML=`<span class="err">Please fill in ${miss}.</span>`;$('#'+miss).focus();return}
+  $('#go').disabled=true;$('#st').innerHTML='<span class="spin"></span> Writing to the blockchain…';
+  try{const r=await api('issue',b);saveCert(r);$('#st').textContent='';toast('Recorded in block #'+r.block);refreshInfo();openCert(r.root)}
+  catch(e){$('#st').innerHTML=`<span class="err">${esc(e.message)}</span>`}
+  $('#go').disabled=false};
+
+/* wallet storage */
+const certs=()=>store.get('certs',[]);
+function saveCert(r){const l=certs().filter(c=>c.root!==r.root);l.unshift({root:r.root,fields:r.fields,revokeKey:r.revokeKey,block:r.block,txHash:r.txHash,at:Date.now(),reveal:Object.fromEntries(r.fields.map(f=>[f.k,f.k!=='grade']))});store.set('certs',l);wbadge()}
+function wbadge(){const n=certs().length;$('#wn').hidden=!n;$('#wn').textContent=n}
+const pkgOf=c=>JSON.stringify({root:c.root,fields:c.fields.map(f=>c.reveal[f.k]?{k:f.k,v:f.v,s:f.s}:{k:f.k,h:f.h})});
+const linkOf=c=>location.origin+location.pathname+'#v='+b64e(pkgOf(c));
+const badge=s=>`<span class="badge ${s}">${{valid:'● Valid',revoked:'● Revoked',altered:'● Altered',notfound:'● Not found',checking:'Checking…'}[s]}</span>`;
+const stat={};
+async function renderWallet(refresh){
+  const l=certs(),el=$('#wlist');
+  if(!l.length){el.innerHTML='<div class="empty">No certificates yet. Issue your first one and it will appear here.</div>';return}
+  el.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Student</th><th>Course</th><th>Fingerprint</th><th>Status</th><th></th></tr></thead><tbody>${l.map(c=>{const g=k=>esc((c.fields.find(f=>f.k===k)||{}).v||'');
+    return `<tr><td><b>${g('name')}</b></td><td>${g('course')}</td><td class="mono h">${short(c.root)}</td><td data-st="${c.root}">${badge(stat[c.root]||'checking')}</td>
+    <td style="white-space:nowrap;text-align:right"><button class="btn sec sm" data-v="${c.root}">View</button> <button class="btn danger sm" data-r="${c.root}" ${stat[c.root]==='revoked'?'disabled':''}>Revoke</button></td></tr>`}).join('')}</tbody></table></div>`;
+  $$('[data-v]').forEach(b=>b.onclick=()=>openCert(b.dataset.v));
+  $$('[data-r]').forEach(b=>b.onclick=()=>revoke(b.dataset.r));
+  if(refresh)await Promise.all(l.map(async c=>{try{stat[c.root]=(await api('lookup/'+c.root)).status}catch{stat[c.root]='checking'}
+    const td=document.querySelector(`[data-st="${c.root}"]`);if(td)td.innerHTML=badge(stat[c.root]);const rb=document.querySelector(`[data-r="${c.root}"]`);if(rb)rb.disabled=stat[c.root]==='revoked'}))}
+$('#wref').onclick=()=>renderWallet(true);
+async function revoke(root){
+  if(!confirm('Revoke this certificate? Everyone who verifies it will see it as revoked. This cannot be undone.'))return;
+  const c=certs().find(x=>x.root===root);
+  try{await api('revoke',{root,revokeKey:c.revokeKey});stat[root]='revoked';toast('Certificate revoked on the blockchain');refreshInfo();loadLedger();renderWallet(false);if(!$('#modal').hidden)openCert(root)}
+  catch(e){toast(e.message)}}
+
+/* certificate modal */
+function qrSvg(text){try{const q=qrcode(0,'L');q.addData(text);q.make();return q.createSvgTag({cellSize:4,margin:0,scalable:true})}catch{return ''}}
+function openCert(root){
+  const c=certs().find(x=>x.root===root);if(!c)return;
+  const val=k=>{const f=c.fields.find(f=>f.k===k);return f?(c.reveal[k]?esc(f.v):'<span style="letter-spacing:.2em;color:#aaa">••••••</span>'):''};
+  const link=linkOf(c),pkg=pkgOf(c);
+  const date=c.fields.find(f=>f.k==='date');
+  $('#mbody').innerHTML=`<div class="mh"><h3>Your certificate</h3><button class="iconbtn" id="mx" aria-label="Close" style="font-size:22px">✕</button></div>
+  <div class="mgrid"><div>
+    <div class="sheet"><div class="kick">Certificate of completion</div><div class="who">${val('name')}</div><div class="what">has successfully completed</div><div class="crs">${val('course')}</div>
+      <div class="what" style="margin-top:6px">Grade: <b style="color:#1d1d1f">${val('grade')}</b>${date?` · ${val('date')}`:''}</div>
+      <div class="meta"><div class="t"><b>${val('issuer')}</b><br>Block #${c.block} · ${new Date(c.at).toLocaleDateString()}<br><span class="mono">${short(c.root,10,8)}</span></div><div class="qr">${qrSvg(link)}</div></div></div>
+    <div class="row"><button class="btn" id="mp">Print or save PDF</button><button class="btn sec" id="ml">Copy verify link</button><button class="btn sec" id="md">Download package</button></div>
+  </div><div>
+    <p class="eyebrow">Selective disclosure</p><p class="h" style="margin:0 0 6px;font-size:14px;word-break:normal">Choose what a verifier can see. Hidden fields are still proven genuine.</p>
+    <div>${c.fields.map(f=>`<label class="sw"><div><b>${esc(f.k)}</b><span class="v">${esc(f.v)}</span></div><input type="checkbox" data-k="${esc(f.k)}" ${c.reveal[f.k]?'checked':''}></label>`).join('')}</div>
+    <label class="l" style="margin-top:14px">Share package</label><textarea class="i" rows="4" readonly id="mpkg">${esc(pkg)}</textarea>
+    <div class="row" style="margin-top:12px"><button class="btn sec sm" id="mc">Copy package</button><button class="btn sec sm" id="mv">Verify now</button><button class="btn danger sm" id="mr" ${stat[root]==='revoked'?'disabled':''}>Revoke</button></div>
+    <p class="h" style="margin-top:14px">Transaction<br><span class="mono">${esc(c.txHash)}</span></p>
+  </div></div>`;
+  $('#modal').hidden=false;document.body.style.overflow='hidden';
+  $('#mx').onclick=closeModal;$('#mp').onclick=()=>print();$('#ml').onclick=()=>copy(link,'Verification link copied');
+  $('#md').onclick=()=>download('certificate-'+root.slice(0,8)+'.json',pkg);$('#mc').onclick=()=>copy(pkg,'Package copied');
+  $('#mv').onclick=()=>{closeModal();$('#vin').value=pkg;tab('verify');location.hash='#app';verify()};$('#mr').onclick=()=>revoke(root);
+  $$('#mbody input[data-k]').forEach(i=>i.onchange=()=>{c.reveal[i.dataset.k]=i.checked;const l=certs();l.find(x=>x.root===root).reveal=c.reveal;store.set('certs',l);openCert(root)});
+  const mm=$('#modal');mm.scrollTop=0}
+function closeModal(){$('#modal').hidden=true;document.body.style.overflow='';renderWallet(false);if(location.hash.startsWith('#v='))history.replaceState(null,'',location.pathname)}
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal').hidden)closeModal()});
+
+/* batch */
+function parseCSV(t){const rows=[];let r=[],c='',q=false;for(let i=0;i<t.length;i++){const ch=t[i];
+  if(q){if(ch==='"'&&t[i+1]==='"'){c+='"';i++}else if(ch==='"')q=false;else c+=ch}
+  else if(ch==='"')q=true;else if(ch===','){r.push(c);c=''}else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&t[i+1]==='\n')i++;r.push(c);c='';if(r.some(x=>x.trim()))rows.push(r);r=[]}else c+=ch}
+  r.push(c);if(r.some(x=>x.trim()))rows.push(r);return rows}
+function csvRows(){const rows=parseCSV($('#csv').value.trim());if(!rows.length)throw new Error('Paste or upload some CSV data first.');
+  let head=['name','course','grade','issuer','date'];const first=rows[0].map(x=>x.trim().toLowerCase());
+  if(first.includes('name')){head=first;rows.shift()}
+  return rows.map(r=>Object.fromEntries(head.map((h,i)=>[h,(r[i]||'').trim()])))}
+function readFile(file,cb){const r=new FileReader();r.onload=()=>cb(String(r.result));r.readAsText(file)}
+function dropzone(zone,input,cb){zone.onclick=()=>input.click();input.onchange=()=>input.files[0]&&readFile(input.files[0],cb);
+  ['dragenter','dragover'].forEach(e=>zone.addEventListener(e,ev=>{ev.preventDefault();zone.classList.add('over')}));
+  ['dragleave','drop'].forEach(e=>zone.addEventListener(e,ev=>{ev.preventDefault();zone.classList.remove('over')}));
+  zone.addEventListener('drop',ev=>{const f=ev.dataTransfer.files[0];if(f)readFile(f,cb)})}
+dropzone($('#csvdrop'),$('#csvfile'),t=>{$('#csv').value=t;toast('CSV loaded')});
+$('#btpl').onclick=()=>download('certichain-template.csv','name,course,grade,issuer,date\nAarav Kumar,Blockchain Fundamentals,A+ (92%),Example University,2026-06-30\nMeera Shah,Applied Cryptography,A (88%),Example University,2026-06-30\n','text/csv');
+$('#bgo').onclick=async()=>{
+  let rows;try{rows=csvRows()}catch(e){$('#bst').innerHTML=`<span class="err">${esc(e.message)}</span>`;return}
+  $('#bgo').disabled=true;$('#bst').innerHTML=`<span class="spin"></span> Issuing ${rows.length} certificate${rows.length>1?'s':''}…`;
+  try{const {results}=await api('batch',{rows});results.forEach(saveCert);$('#bst').textContent='';refreshInfo();
+    $('#bres').hidden=false;$('#bres').innerHTML=`<h3>${results.length} certificates issued</h3><p class="sub">All saved to “My certificates”. Download every share package in one file.</p>
+      <div class="tbl-wrap"><table><tbody>${results.map(r=>`<tr><td><b>${esc(r.fields[0].v)}</b></td><td>${esc(r.fields[1].v)}</td><td class="mono h">${short(r.root)}</td><td style="text-align:right"><button class="btn sec sm" data-bv="${r.root}">View</button></td></tr>`).join('')}</tbody></table></div>
+      <div class="row"><button class="btn" id="ball">Download all packages</button></div>`;
+    $$('[data-bv]').forEach(b=>b.onclick=()=>openCert(b.dataset.bv));
+    $('#ball').onclick=()=>download('certichain-packages.json',JSON.stringify(results.map(r=>certs().find(c=>c.root===r.root)).map(c=>JSON.parse(pkgOf(c))),null,2));
+    toast(results.length+' certificates issued')
+  }catch(e){$('#bst').innerHTML=`<span class="err">${esc(e.message)}</span>`}
+  $('#bgo').disabled=false};
+
+/* verify */
+const COPY={valid:['✓','Genuine','This certificate is recorded on the blockchain and has not been altered.'],revoked:['✕','Revoked','The issuer has revoked this certificate. It is no longer valid.'],notfound:['?','Not on the blockchain','No record matches this fingerprint.'],altered:['!','Altered','The fields no longer match the fingerprint they were issued with.']};
+async function verify(){
+  const out=$('#vout');out.innerHTML='<div class="card"><span class="spin"></span> Checking the blockchain…</div>';
+  try{const d=await api('verify',{pkg:$('#vin').value}),[ic,h,m]=COPY[d.status];
+    let kv='';if(d.status==='valid'||d.status==='revoked'){kv=`<dl class="kv">${(d.issuer?`<dt>Issuer wallet</dt><dd class="mono" style="font-size:13px">${esc(d.issuer)}</dd><dt>Recorded</dt><dd>${fmt(d.issuedAt)}</dd>`:'')}${d.shown.map(x=>`<dt>${esc(x[0])}</dt><dd>${esc(x[1])}</dd>`).join('')}${(d.hiddenKeys||[]).map(k=>`<dt>${esc(k)}</dt><dd class="priv">PRIVATE <span style="font-weight:400;color:var(--mut);letter-spacing:0">· proven genuine</span></dd>`).join('')}<dt>Fingerprint</dt><dd class="mono" style="font-size:13px">${esc(d.root)}</dd></dl>`}
+    out.innerHTML=`<div class="card"><div class="result"><div class="seal ${d.status}">${ic}</div><div><h3>${h}</h3><div style="color:var(--mut)">${m}</div></div></div>${kv}</div>`;
+    out.scrollIntoView({behavior:'smooth',block:'nearest'})
+  }catch(e){out.innerHTML=`<div class="card"><div class="result"><div class="seal altered">!</div><div><h3>Cannot verify</h3><div style="color:var(--mut)">${esc(e.message)}</div></div></div></div>`}}
+$('#vgo').onclick=verify;$('#vclr').onclick=()=>{$('#vin').value='';$('#vout').innerHTML=''};
+dropzone($('#vdrop'),$('#vfile'),t=>{$('#vin').value=t.trim();verify()});
+$('#fgo').onclick=async()=>{const r=$('#fp').value.trim().toLowerCase().replace(/^0x/,'');
+  try{const d=await api('lookup/'+r);$('#fout').innerHTML=badge(d.status)+(d.issuedAt?` <span class="h">Recorded ${fmt(d.issuedAt)}</span>`:'')}catch(e){$('#fout').innerHTML=`<span class="err">${esc(e.message)}</span>`}};
+
+/* deep link: #v=<package> */
+function handleHash(){const m=location.hash.match(/^#v=(.+)$/);if(!m)return;
+  try{$('#vin').value=b64d(m[1]);tab('verify');$('#app').scrollIntoView();verify()}catch{toast('That verification link is not valid')}}
+
+/* explorer */
+let ledger=[],filt='all',shownN=8;
+async function loadLedger(){try{ledger=await api('certs');drawLedger()}catch(e){$('#ex').innerHTML=`<tr><td colspan="5" class="empty">${esc(e.message)}</td></tr>`}}
+function drawLedger(){
+  const q=$('#q').value.trim().toLowerCase().replace(/^0x/,'');
+  const l=ledger.filter(x=>(filt==='all'||(filt==='revoked')===x.revoked)&&(!q||x.root.includes(q)||x.issuer.toLowerCase().includes(q)));
+  $('#ex').innerHTML=l.slice(0,shownN).map(x=>`<tr class="click" data-x="${x.root}"><td class="mono">${short(x.root)}</td><td class="mono">${x.issuer.slice(0,6)}…${x.issuer.slice(-4)}</td><td>#${x.block}</td><td>${fmt(x.issuedAt)}</td><td>${badge(x.revoked?'revoked':'valid')}</td></tr>`).join('')||`<tr><td colspan="5" class="empty">${ledger.length?'No records match your search.':'The ledger is empty. Issue the first certificate.'}</td></tr>`;
+  $('#exm').hidden=l.length<=shownN;
+  $$('[data-x]').forEach(r=>r.onclick=()=>{const x=ledger.find(y=>y.root===r.dataset.x);copy(x.root,'Fingerprint copied');$('#fp').value=x.root})}
+$('#q').oninput=()=>{shownN=8;drawLedger()};$('#more').onclick=()=>{shownN+=10;drawLedger()};
+$$('#flt button').forEach(b=>b.onclick=()=>{filt=b.dataset.f;shownN=8;$$('#flt button').forEach(x=>x.classList.toggle('on',x===b));drawLedger()});
+
+/* 3D chain */
+let R,S,C,G,L,M=[],dn=false,vis=true;
+function init3d(){
+  if(!window.THREE){$('#stage').style.cssText='height:140px;min-height:0';return}
+  const b=$('#stage');S=new THREE.Scene();C=new THREE.PerspectiveCamera(45,1,.1,100);
+  try{R=new THREE.WebGLRenderer({antialias:true,alpha:true})}catch{b.style.cssText='height:140px;min-height:0';return}
+  R.setPixelRatio(Math.min(devicePixelRatio,2));b.prepend(R.domElement);
+  S.add(new THREE.AmbientLight(0xffffff,.7));const p=new THREE.PointLight(0xffffff,1.2);p.position.set(6,7,9);S.add(p);
+  G=new THREE.Group();G.rotation.x=.3;S.add(G);L=new THREE.Line(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({color:0x8e8e93,transparent:true,opacity:.6}));G.add(L);
+  const rs=()=>{R.setSize(b.clientWidth,b.clientHeight);C.aspect=b.clientWidth/b.clientHeight;C.updateProjectionMatrix()};new ResizeObserver(rs).observe(b);rs();
+  let lx;b.addEventListener('pointerdown',e=>{dn=true;lx=e.clientX});addEventListener('pointerup',()=>dn=false);addEventListener('pointermove',e=>{if(dn){G.rotation.y+=(e.clientX-lx)*.01;lx=e.clientX}});
+  new IntersectionObserver(e=>vis=e[0].isIntersecting).observe(b);
+  const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  (function a(){requestAnimationFrame(a);if(!vis)return;if(!dn&&!still)G.rotation.y+=.004;
+    M.forEach(m=>{m.position.lerp(m.userData.p,.08);const s=m.scale.x;m.scale.setScalar(s+(1-s)*.08);if(!still){m.rotation.x+=.006;m.rotation.y+=.008}});
+    L.geometry.setFromPoints(M.map(m=>m.position));R.render(S,C)})()}
+function cubes(n){lastN=n;if(!R)return;const st=getComputedStyle(document.documentElement);
+  while(M.length>n){const m=M.pop();G.remove(m)}
+  while(M.length<n){const m=new THREE.Mesh(new THREE.BoxGeometry(1.2,1.2,1.2),new THREE.MeshStandardMaterial({roughness:.25,metalness:.4,transparent:true,opacity:.92,emissiveIntensity:.25}));
+    m.add(new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry),new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.35})));
+    m.scale.setScalar(.01);G.add(m);M.push(m)}
+  M.forEach((m,i)=>{const a=i*.85;m.userData.p=new THREE.Vector3(Math.cos(a)*2.8,(i-(n-1)/2)*.9,Math.sin(a)*2.8);
+    const c=new THREE.Color(st.getPropertyValue(i?'--cube':'--cube2').trim());m.material.color.copy(c);m.material.emissive.copy(c)});
+  C.position.set(0,0,Math.max(11,n*.6+8))}
+
+wbadge();init3d();refreshInfo();loadLedger();handleHash();addEventListener('hashchange',handleHash);
+setInterval(()=>{if(!document.hidden){refreshInfo();loadLedger()}},10000);
+</script></body></html>

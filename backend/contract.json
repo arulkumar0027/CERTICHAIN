@@ -1,0 +1,174 @@
+{
+  "address": "0x380Bd6b4D5F3BaF4BA1c48F1AbFA37ca5519E1d9",
+  "abi": [
+    {
+      "type": "constructor",
+      "stateMutability": "undefined",
+      "payable": false,
+      "inputs": []
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Issued",
+      "inputs": [
+        {
+          "type": "bytes32",
+          "name": "root",
+          "indexed": true
+        },
+        {
+          "type": "address",
+          "name": "issuer",
+          "indexed": true
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Revoked",
+      "inputs": [
+        {
+          "type": "bytes32",
+          "name": "root",
+          "indexed": true
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "approvedIssuers",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": ""
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "certs",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "bytes32",
+          "name": ""
+        }
+      ],
+      "outputs": [
+        {
+          "type": "address",
+          "name": "issuer"
+        },
+        {
+          "type": "uint64",
+          "name": "issuedAt"
+        },
+        {
+          "type": "bool",
+          "name": "revoked"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "issue",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "bytes32",
+          "name": "root"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "address",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "revoke",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "bytes32",
+          "name": "root"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setIssuer",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "a"
+        },
+        {
+          "type": "bool",
+          "name": "ok"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "verify",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "bytes32",
+          "name": "root"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "name": "exists"
+        },
+        {
+          "type": "bool",
+          "name": "revoked"
+        },
+        {
+          "type": "address",
+          "name": "issuer"
+        },
+        {
+          "type": "uint64",
+          "name": "issuedAt"
+        }
+      ]
+    }
+  ]
+}

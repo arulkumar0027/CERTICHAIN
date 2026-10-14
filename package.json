@@ -1,0 +1,11 @@
+{
+  "name": "certichain",
+  "version": "1.0.0",
+  "scripts": {
+    "chain": "hardhat node",
+    "deploy": "hardhat run scripts/deploy.js --network localhost",
+    "start": "node backend/server.js"
+  },
+  "dependencies": { "dotenv": "^16.4.5", "ethers": "^6.13.0", "express": "^4.19.2" },
+  "devDependencies": { "@nomicfoundation/hardhat-toolbox": "^5.0.0", "hardhat": "^2.22.0" }
+}
